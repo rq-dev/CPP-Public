@@ -1,0 +1,10 @@
+Local: 3864812
+Global: 14626840
+Local array element: 3864817
+alloca: 3864785
+new char: 1619385
+malloc: 1619385
+VirtualAlloc: 196609
+Main: 14618624
+ESP 3864784
+EBP 3864928

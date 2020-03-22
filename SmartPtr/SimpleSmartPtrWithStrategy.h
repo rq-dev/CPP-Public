@@ -192,7 +192,12 @@ public:
 };
 
 
-
+/**
+	Weak = число слабых указателей + 1, если есть хотя бы 1 сильный.
+	Count = число сильных указателей.
+	Когда объект создается - это сильный указатель, поэтому оба равны 1.
+	Если уничтожаются все сильные указатели, то Count = 0, а Weak = число слабых.
+*/
 template <class T>
 class CWeakPtrSupportStrategy
 {
@@ -243,6 +248,7 @@ public:
 		return Counter->Count > 0;
 	}
 
+	/*
 	size_t Release(T* Ptr)
 	{
 		if (!Counter)
@@ -283,6 +289,52 @@ public:
 			delete Counter;
 			Counter = 0;
 			return 0;
+		}
+
+		return 1;
+	}
+	*/
+
+	size_t Release(T* Ptr)
+	{
+		if (!Counter)
+		{
+			return 0;
+		}
+
+		Counter->Count--;
+
+		if (Counter->Count == 0)
+		{
+			Counter->Weak--;
+		};
+
+		if (Counter->Weak == 0)
+		{
+			printf("Delete counter %d\r\n", (int)Counter);
+			delete Counter;
+			Counter = 0;
+			return 0;
+		}
+
+		return Counter->Count;
+	}
+
+	size_t ReleaseWeak(T* Ptr)
+	{
+		if (!Counter)
+		{
+			return 1;
+		}
+
+		Counter->Weak--;
+
+		if (Counter->Weak == 0)
+		{
+			printf("Delete counter %d\r\n", (int)Counter);
+			delete Counter;
+			Counter = 0;
+			return 1;
 		}
 
 		return 1;
@@ -493,6 +545,12 @@ public:
 			printf("\r\nWeak ptr test\r\n");
 			CSimpleSmartPtr<int, CWeakPtrSupportStrategy> Ptr(new int);
 			CSimpleWeakPtr<int, CWeakPtrSupportStrategy> Ptr2(Ptr);
+
+			printf("\r\nReset ptr\r\n");
+			Ptr = CSimpleSmartPtr<int, CWeakPtrSupportStrategy>(new int);
+						
+			printf("\r\nPtr has been reset\r\n");
+			CSimpleSmartPtr<int, CWeakPtrSupportStrategy> Ptr3 = Ptr2.Lock();
 		}
 
 		CWeakPtrCacheTester WeakPtrCacheTester;

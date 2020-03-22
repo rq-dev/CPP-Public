@@ -31,6 +31,12 @@ namespace SimplePtr
 
 #include "StandardSmartPtr.h"
 
+#include "StandardSmartPtr2.h"
+
+#include "StandardSmartPtr3.h"
+
+#include "SmartPtrVirtual.h"
+
 int main()
 {
 	CSmartPtrDetailedTester SmartPtrTester;
@@ -45,10 +51,19 @@ int main()
 	SimpleSmartPtrWithStrategy::CSimpleSmartPtrTester SimpleSmartPtrTester1;
 	SimpleSmartPtrTester1.Test();
 	printf("\r\n");
-
+	/*
 	CStandardSmartPtrTester StandardSmartPtrTester;
 	StandardSmartPtrTester.Test();
-	
+
+	CSmartPtrVirtualTester SmartPtrVirtualTester;
+	SmartPtrVirtualTester.Test();
+
+	CStandardSmartPtrVirtualTest StandardSmartPtrVirtualTest;
+	StandardSmartPtrVirtualTest.Test();
+
+	CWeakPtrTester3 WeakPtrTester3;
+	WeakPtrTester3.Test();
+	*/
     return 0;
 }
 

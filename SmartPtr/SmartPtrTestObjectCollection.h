@@ -97,6 +97,11 @@ public:
 		int q = Ptr1->Value();
 	}
 
+	void TestDefaultConstructor()
+	{
+		CSmartPtr_ Ptr;
+		CSmartPtr_ Ptr1 = Ptr;
+	}
 
 
 };

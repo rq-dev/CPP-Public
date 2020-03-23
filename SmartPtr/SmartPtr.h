@@ -272,6 +272,11 @@ public:
 
 	CSmartPtr& operator=(const CSmartPtr& Other)
 	{
+		if (this == &Other)
+		{
+			return *this;
+		}
+
 		Detach();
 		Ptr = AddRef(Other, Other.Ptr);
 		return *this;

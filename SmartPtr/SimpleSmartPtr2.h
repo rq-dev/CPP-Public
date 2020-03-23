@@ -49,6 +49,11 @@ public:
 
 	CSimpleSmartPtr& operator=(const CSimpleSmartPtr& Other)
 	{
+		if (this == &Other)
+		{
+			return *this;
+		}
+
 		Detach();
 		Attach(Other);
 		return *this;

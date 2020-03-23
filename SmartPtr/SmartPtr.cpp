@@ -39,17 +39,20 @@ namespace SimplePtr
 
 int main()
 {
+	/*
 	CSmartPtrDetailedTester SmartPtrTester;
 	SmartPtrTester.Test();
-
+		
 	printf("\r\nSimple Smart Pointer Test\r\n\r\n");
 	SimpleSmartPtr::CSimpleSmartPtrTester SimpleSmartPtrTester;
 	SimpleSmartPtrTester.Test();
 	printf("\r\n");
+	*/
 
 	printf("\r\nSimple Smart Pointer/Strategy Test\r\n\r\n");
 	SimpleSmartPtrWithStrategy::CSimpleSmartPtrTester SimpleSmartPtrTester1;
 	SimpleSmartPtrTester1.Test();
+	SimpleSmartPtrTester1.TestDefaultConstructor();
 	printf("\r\n");
 	/*
 	CStandardSmartPtrTester StandardSmartPtrTester;

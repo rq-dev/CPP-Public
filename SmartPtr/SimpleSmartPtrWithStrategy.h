@@ -27,6 +27,8 @@ public:
 		Вызывается при создании умного указателя на основании другого умного указателя.
 		Параметр - значение обычного указателя для умного указателя - источника.
 		Возвращает значение обычного указателя.
+
+		Будем предполагать, что Ptr может быть 0.
 	*/
 	T* AddRef(const CCounterStrategy& Other, T* Ptr)
 	{
@@ -37,6 +39,8 @@ public:
 
 	/*
 		Вызывается при создании умного указателя на основании обычного указателя.
+
+		Будем предполагать, что Ptr может быть 0.
 	*/
 	void InitRef(T* Ptr)
 	{
@@ -46,6 +50,8 @@ public:
 
 	/*
 		Если возвращает 0, требуется освободить ресурс.
+
+		Будем предполагать, что Ptr может быть 0.
 	*/
 	size_t Release(T* Ptr)
 	{
@@ -59,8 +65,9 @@ public:
 		if (R == 0)
 		{
 			delete Counter;
-			Counter = 0;
 		}
+
+		Counter = 0;
 		return R;
 	}
 };
@@ -98,6 +105,9 @@ public:
 		{
 			Prev->Next = Next;
 			Next->Prev = Prev;
+
+			Next = this;
+			Prev = this;
 			return 1;
 		}
 	}
@@ -110,6 +120,9 @@ public:
 
 	T* AddRef(const CCloneBasicStrategy& Other, T* Ptr)
 	{
+		if (!Ptr)
+			return 0;
+
 		return new T(*Ptr);
 	}
 
@@ -139,6 +152,7 @@ public:
 	explicit CSimpleSmartPtr()
 	{
 		Ptr = 0;
+		InitRef(Ptr);
 	}
 
 	explicit CSimpleSmartPtr(T* V) : Ptr(V)
@@ -158,6 +172,11 @@ public:
 
 	CSimpleSmartPtr& operator=(const CSimpleSmartPtr& Other)
 	{
+		if (this == &Other)
+		{
+			return *this;
+		}
+
 		Detach();
 		Attach(Other);
 		return *this;
@@ -175,14 +194,14 @@ public:
 
 	void Detach()
 	{
-		if (Ptr)
+		if (Release(Ptr) == 0)
 		{
-			if (Release(Ptr) == 0)
+			if (Ptr)
 			{
 				delete Ptr;
 			}
-			Ptr = 0;
 		}
+		Ptr = 0;
 	}
 
 	T* Get() const
@@ -241,7 +260,7 @@ public:
 		printf("New counter %d, ptr %d\r\n",(int)Counter,(int)Ptr);
 	}
 
-	bool HasPtr()
+	bool HasPtr() const
 	{
 		if (!Counter)
 			return false;
@@ -317,7 +336,9 @@ public:
 			return 0;
 		}
 
-		return Counter->Count;
+		size_t R = Counter->Count;
+		Counter = 0;
+		return R;
 	}
 
 	size_t ReleaseWeak(T* Ptr)
@@ -337,6 +358,7 @@ public:
 			return 1;
 		}
 
+		Counter = 0;
 		return 1;
 	}
 };
@@ -386,6 +408,11 @@ public:
 
 	CSimpleWeakPtr& operator=(const CSimpleWeakPtr& Other)
 	{
+		if (this == &Other)
+		{
+			return *this;
+		}
+
 		Detach();
 		Attach(Other);
 		return *this;
@@ -405,14 +432,14 @@ public:
 
 	void Detach()
 	{
-		if (Ptr)
+		if (ReleaseWeak(Ptr) == 0)
 		{
-			if (ReleaseWeak(Ptr) == 0)
+			if (Ptr)
 			{
 				delete Ptr;
 			}
-			Ptr = 0;
 		}
+		Ptr = 0;
 	}
 
 };
@@ -424,17 +451,22 @@ public:
 
 	T* AddRef(const CEmbeddedCounterStrategy& Other, T* Ptr)
 	{
-		Ptr->Count++;
+		if (Ptr)
+			Ptr->Count++;
 		return Ptr;
 	}
 
 	void InitRef(T* Ptr)
 	{
-		Ptr->Count = 1;
+		if (Ptr)
+			Ptr->Count = 1;
 	}
 
 	size_t Release(T* Ptr)
 	{
+		if (!Ptr)
+			return 0;
+
 		Ptr->Count--;
 		return Ptr->Count;
 	}
@@ -452,6 +484,13 @@ public:
 		CSmartPtrTestObjectTester<CSmartPtr_> Tester;
 		Tester.Test(this);
 	}
+
+	void TestDefaultConstructor()
+	{
+		CSmartPtrTestObjectTester<CSmartPtr_> Tester;
+		Tester.TestDefaultConstructor();
+	}
+
 };
 
 
@@ -555,5 +594,24 @@ public:
 
 		CWeakPtrCacheTester WeakPtrCacheTester;
 		WeakPtrCacheTester.Test();
+	}
+
+	void TestDefaultConstructor()
+	{
+		printf("\r\n\r\nCounter strategy\r\n");
+		CSimpleSmartPtrTester1<CCounterStrategy> T1;
+		T1.TestDefaultConstructor();
+
+		printf("\r\n\r\nLinked list strategy\r\n");
+		CSimpleSmartPtrTester1<CLinkedListStrategy> T2;
+		T2.TestDefaultConstructor();
+
+		printf("\r\n\r\nClone basic strategy\r\n");
+		CSimpleSmartPtrTester1<CCloneBasicStrategy> T3;
+		T3.TestDefaultConstructor();
+
+		printf("\r\n\r\nEmbedded counter strategy\r\n");
+		CSimpleSmartPtrTester1<CEmbeddedCounterStrategy> T4;
+		T4.TestDefaultConstructor();
 	}
 };
